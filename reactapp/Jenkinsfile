@@ -11,22 +11,26 @@ pipeline {
         stage("Clone Code") {
             steps {
                 echo "🔁 Cloning the code from GitHub..."
-                git branch: "main", url: "https://github.com/arnavghost/dockerreact.git"
+                git branch: "main", url: "https://github.com/Abhishek-2502/task2.git"
             }
         }
 
         stage("Clean Old Containers & Images") {
             steps {
-                echo "🧹 Removing old containers and images..."
-                sh '''
-                echo "Listing containers..."
+                echo "🧹 Cleaning up old containers and images..."
+                bat '''
+                echo Listing containers...
                 docker ps -a
 
-                echo "Stopping and removing containers..."
-                docker ps -aq | xargs -r docker rm -f || true
+                echo Removing running container if exists...
+                docker stop %CONTAINER_NAME% 2>nul || echo "No running container"
+                docker rm -f %CONTAINER_NAME% 2>nul || echo "No container to remove"
 
-                echo "Removing images..."
-                docker images -q | xargs -r docker rmi -f || true
+                echo Removing old image if exists...
+                docker rmi -f %IMAGE_NAME%:latest 2>nul || echo "No image to remove"
+
+                echo ✅ Cleanup completed successfully.
+                exit /b 0
                 '''
             }
         }
@@ -34,18 +38,18 @@ pipeline {
         stage("Build Docker Image") {
             steps {
                 echo "⚙️ Building Docker image..."
-                sh '''
+                bat '''
                 cd reactapp
-                docker build -t ${IMAGE_NAME}:latest .
+                docker build -t %IMAGE_NAME%:latest .
                 '''
             }
         }
 
         stage("Deploy Container") {
             steps {
-                echo "🚀 Deploying container..."
-                sh '''
-                docker run -d --name ${CONTAINER_NAME} -p ${PORT}:8081 ${IMAGE_NAME}:latest
+                echo "🚀 Running Docker container..."
+                bat '''
+                docker run -d --name %CONTAINER_NAME% -p %PORT%:80 %IMAGE_NAME%:latest
                 '''
             }
         }
@@ -53,10 +57,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment successful! Application is running at http://localhost:${PORT}"
+            echo "✅ Deployment successful! Visit http://localhost:${PORT}"
         }
         failure {
-            echo "❌ Deployment failed! Check Jenkins logs for details."
+            echo "❌ Deployment failed. Check Jenkins logs for details."
         }
     }
 }
