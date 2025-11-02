@@ -1,6 +1,6 @@
 # Step 1: Build the app
-# Use Node 22 (Vite v7 requires Node 20+)
-FROM node:22-alpine AS builder
+# Use Node 18 (Vite v4 works well with Node 16+)
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
