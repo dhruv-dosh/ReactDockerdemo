@@ -11,7 +11,7 @@ pipeline {
         stage("Clone Code") {
             steps {
                 echo "🔁 Cloning the code from GitHub..."
-                git branch: "main", url: "https://github.com/Abhishek-2502/task2.git"
+                git branch: "main", url: "https://github.com/dhruv-dosh/ReactDockerdemo.git"
             }
         }
 
